@@ -17,19 +17,28 @@ private:
     std::string hex;
     ull* elementGF = nullptr;
     int size = 0;
-    int maxSize = 6
     ull generator[3] {23,0,2251799813685248};//needed check
+    int bitSizeGen = 178;
 public:
     GF2(std::string);
     GF2(int );
+    GF2(ull *,int size);
     ~GF2();
     ull hexCharToNumber(char&);
     void convertHexTo64Bit();
     std::string convert64bitToHex();
-    
+
+    void copy(const GF2& );
+
+    GF2& shiftBitToHigh(int);
+    GF2& power2();
+    int compare(const GF2 &,const GF2 &);
+    GF2& modGenerator (const GF2 &);
+
 
     friend GF2& operator + (const GF2 &, const GF2 &);
-    friend GF2& operator % (const GF2 &, const GF2 &);
+    friend GF2& operator * (const GF2 &, const GF2 &);
+
 };
 
 
