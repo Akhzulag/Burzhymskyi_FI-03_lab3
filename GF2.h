@@ -8,6 +8,7 @@
 #include <iostream>
 #include <cmath>
 #include <sstream>
+#include <memory>
 
 #define ull unsigned long long
 
@@ -15,11 +16,14 @@ class GF2
 {
 private:
     std::string hex;
-    ull* elementGF = nullptr;
+    ull elementGF[8];
     int size = 0;
     ull generator[3] {23,0,2251799813685248};//needed check
     int bitSizeGen = 178;
 public:
+    static int countDelete;
+    static int countCreated;
+
     GF2(std::string);
     GF2(int );
     GF2(ull *,int size);
@@ -29,15 +33,20 @@ public:
     std::string convert64bitToHex();
 
     void copy(const GF2& );
-
+    void allocGF2();
     GF2& shiftBitToHigh(int);
     GF2& power2();
+    GF2& inversGF();
     int compare(const GF2 &,const GF2 &);
-    GF2& modGenerator (const GF2 &);
+    GF2& modGenerator ();
+    int bitSize() const;
 
+    ull Trace();
 
-    friend GF2& operator + (const GF2 &, const GF2 &);
     friend GF2& operator * (const GF2 &, const GF2 &);
+    friend GF2& operator << (const GF2 &, int);
+    //friend GF2& operator ^ (const GF2 &, int);
+    GF2& operator += (const GF2 &);
 
 };
 

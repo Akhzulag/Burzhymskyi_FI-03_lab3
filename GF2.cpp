@@ -6,19 +6,24 @@
 
 GF2::~GF2()
 {
-    std::cout<<"\nd\n";
-    delete[] elementGF;
+    countDelete++;
+
+}
+
+void GF2::allocGF2()
+{
+    countCreated++;
+    for(int i = 0; i < 8; ++i)
+    {
+        elementGF[i] = 0;
+    }
 }
 
 GF2::GF2(std::string hex)
 {
     this->size = ceil(double(hex.size())/16);
-    elementGF = new ull[this->size];
 
-    for(int i = 0; i < size; ++i)
-    {
-        elementGF[i] = 0;
-    }
+    this->allocGF2();
 
     for(int i = hex.size() - 1; i < size*16 - 1; ++i)//was size*16
     {
@@ -35,12 +40,7 @@ GF2::GF2(std::string hex)
 GF2::GF2(int size)
 {
     this->size = size;
-    elementGF = new ull[size];
-
-    for(int i = 0; i < size; ++i)
-    {
-        elementGF[i] = 0;
-    }
+    allocGF2();
 }
 
 
@@ -105,23 +105,23 @@ std::string GF2::convert64bitToHex()
 
 
 
-GF2& operator + (const GF2& left, const GF2& right)
+GF2& GF2::operator += (const GF2 &right)
 {
-    GF2 *tmp = new GF2(std::max(left.size, right.size));
-
-    for(int i = 0; i < tmp->size; ++i)
+    this->size = std::max(right.size, this->size);
+    for(int i = 0; i < this->size; ++i)
     {
-        tmp->elementGF[i] = left.elementGF[i] ^ right.elementGF[i];
+        this->elementGF[i] = this->elementGF[i] ^ right.elementGF[i];
     }
 
-    for(int i = tmp->size - 1; i >= 0; --i)//TODO check size chages;
+    for(int i = this->size - 1; i >= 0; --i)//TODO check size chages;
     {
-        if(tmp->elementGF[i] == 0)
-            --tmp->size;
+        if(this->elementGF[i] == 0)
+            --this->size;
         else
             break;
     }
-    return *tmp;
+
+    return *this;
 }
 
 
@@ -158,10 +158,8 @@ void GF2::copy(const GF2& copy)
 {
     this->hex = copy.hex;
     this->size = copy.size;
-    if(elementGF != nullptr)
-        delete[] this->elementGF;
-    this->elementGF = new ull[size];
 
+    this->allocGF2();
     for(int i = 0; i < size; ++i)
     {
         this->elementGF[i] = copy.elementGF[i];
@@ -171,8 +169,9 @@ void GF2::copy(const GF2& copy)
 
 GF2::GF2(ull *arr, int size)
 {
+
     this->size = size;
-    elementGF = new ull[size];
+    allocGF2();
     for(int i = 0; i < size; ++i)
     {
         this->elementGF[i] = arr[i];
@@ -193,35 +192,143 @@ int GF2::compare(const GF2 &left,const GF2 &right)
     return 0;
 }
 
-
-
-GF2& GF2::modGenerator(const GF2 &A)
+int GF2::bitSize() const
 {
-    GF2* R = new GF2("1");
-    R->copy(A);
-    ull generator[3] {23,0,2251799813685248};//needed check
-    GF2 B(generator,3);
-    std::cout<<B.convert64bitToHex()+'\n';
+    return 64*(this->size-1) + int(log2(this->elementGF[this->size-1])) + 1;
+}
+
+GF2& GF2::modGenerator()
+{
+    GF2 B(this->generator,3);
+
     int k = 180;
-    GF2* tmp = nullptr;
-    while(compare(*R,B) == 1)
+
+    while(compare(*this,B) == 1)
     {
-        int t = 64*(R->size-1) + int(log2(R->elementGF[R->size-1]))+1;
-        GF2 C = B.shiftBitToHigh(t-k);//проблема тут
-        int r = 64*(C.size-1) + int(log2(C.elementGF[C.size-1])) + 1;
-        if(compare(*R,B) == 0)
+        int t = this->bitSize();
+        GF2 C = B.shiftBitToHigh(t-k);
+
+        if(compare(*this,B) == 0)
         {
             --t;
-            C = shiftBitToHigh(k-t);
+            C.~GF2();
+            C = B.shiftBitToHigh(k-t);
         }
-        tmp = &(*R + C);
-        delete R;
-        R = tmp;
-        tmp = nullptr;
+
+        *this += C;
     }
 
-    return *R;
+    return *this;
+}
+
+int GF2::countCreated = 0;
+int GF2::countDelete = 0;
+
+GF2& operator << (const GF2 &right, int k)
+{
+    int sizeG = 0;
+    int shift64 = k/64;
+    int shiftBit = k - shift64*64;
+
+    if( (int)log2(right.elementGF[right.size - 1]) + shiftBit > 63)
+        sizeG = right.size + 1 + shift64;
+    else
+        sizeG = right.size + shift64;
+
+    GF2 *tmp = new GF2(sizeG);
+    if(k == 0)
+    {
+        tmp->copy(right);
+        return *tmp;
+    }
+
+    for(int i = shift64+right.size - 1; i >= shift64; --i)
+    {
+        tmp->elementGF[i] = right.elementGF[i - shift64];
+    }
+
+    ull carry = 0;
+    if(shiftBit!=0)
+        for(int i = 0; i < sizeG; ++i)
+        {
+            ull tmpCarry =  tmp->elementGF[i] >> (64 - shiftBit);
+            tmp->elementGF[i] = ( tmp->elementGF[i] << shiftBit) | carry;
+            carry = tmpCarry;
+        }
+
+    return *tmp;
 }
 
 
+GF2& operator * (const GF2 &left, const GF2 &right)
+{
+    GF2* result = new GF2(1);
 
+    int bitSize = right.bitSize();
+    int j = -1;
+    ull mask;
+    //GF2 *tmp = result;
+    for(int i = 0; i < bitSize; ++i)
+    {
+        if(i % 64 == 0)
+        {
+            ++j;
+            mask = 1;
+        }
+
+        if((right.elementGF[j] & mask) != 0)
+        {
+            GF2 shifted = (left << i);
+            *result += shifted;//TODO check that left<<i will be deleted
+            result->modGenerator();
+        }
+
+        mask = (mask << 1);
+
+    }
+
+    return *result;
+}
+
+GF2& GF2::power2()//b5f64c07f0a40b755eb52b45c0418e61 problem
+{
+    int bitSize = this->bitSize()*2+1;
+    int size64 = 0;
+    if(bitSize - 1 % 64 && bitSize - 1 > 64)
+        size64 = bitSize/64;
+    else
+        size64 =ceil(double(bitSize)/double (64));
+    GF2* res = new GF2(size64);
+    int k = 0;
+    for(int i = 0; i < this->size; ++i)
+    {
+        ull tmp = this->elementGF[i];
+        for(int j = 0; j < 128; j+=2)
+        {
+            res->elementGF[k] = res->elementGF[k] | ((tmp & 1) << j);
+            tmp = tmp >> 1;
+            if(j == 62 || j == 126)
+                ++k;
+        }
+    }
+    res->modGenerator();
+    return *res;
+}
+
+ull GF2::Trace()
+{
+    *this = *this * *this;
+
+    //this->power2();
+    GF2 res(1) ;
+    res.copy(*this);
+    for(int i = 1; i < 179; ++i)
+    {
+        *this = *this * *this;
+       // std::cout<< this->
+        res += *this;
+        std::cout<<res.elementGF[0]<<'\n';
+    }
+
+    return (ull)res.elementGF[0];
+}
