@@ -7,6 +7,6 @@ set(LIBRARIES
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(Burzhymskyi_FI_03_lab3 Test.cpp main.cpp GF2.cpp GF2.h)
+add_executable(Burzhymskyi_FI_03_lab3 Test.cpp GF2.cpp GF2.h)
 
 target_link_libraries(Burzhymskyi_FI_03_lab3 gtest gtest_main)
