@@ -47,11 +47,18 @@ int main()
         GF2 b(c),a(c);
         //a.countCreated= 0;
         //a.countDelete = 0;
-
+        //1000100000100000000000001000101000101010001000100010001010101000100010100010001000001000100010110100001010111010010111101000101101111101001011101000000011100111110101101100001
         //GF2 tmp = (a*b);
         //6625df7cdb83c2802a8fdaa81550c669c2a4527b9c4a9 bug with power
-        std::cout<<b.power2().convert64bitToHex()<<(b*b).convert64bitToHex()<<'\n';
-        std::cout<<b.Trace()<<'\n';
+//        std::string resMUL2 =(b*b).convert64bitToHex();
+//        std::cout<<resMUL2<<' ';
+//        std::string resP2 = b.power2().convert64bitToHex();
+//        std::cout<<resP2+'\n';
+        //std::cout<<b.Trace()<<'\n';
+        if(b.Trace() == b.TraceMUL())
+            std::cout<<'t';
+        else
+            std::cout<<'f';
         //<<;
         //std::cout<<f+'\n';
         std::cout<<' '<<a.countDelete-a.countCreated<<'\n';

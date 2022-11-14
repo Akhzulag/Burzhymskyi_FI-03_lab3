@@ -294,15 +294,13 @@ GF2& GF2::power2()//b5f64c07f0a40b755eb52b45c0418e61 problem
 {
     int bitSize = this->bitSize()*2+1;
     int size64 = 0;
-    if(bitSize - 1 % 64 && bitSize - 1 > 64)
-        size64 = bitSize/64;
-    else
-        size64 =ceil(double(bitSize)/double (64));
+    size64 =ceil(double(bitSize)/double (64));
     GF2* res = new GF2(size64);
     int k = 0;
+    ull tmp;
     for(int i = 0; i < this->size; ++i)
     {
-        ull tmp = this->elementGF[i];
+        tmp = this->elementGF[i];
         for(int j = 0; j < 128; j+=2)
         {
             res->elementGF[k] = res->elementGF[k] | ((tmp & 1) << j);
@@ -311,11 +309,18 @@ GF2& GF2::power2()//b5f64c07f0a40b755eb52b45c0418e61 problem
                 ++k;
         }
     }
+    for(int i = res->size - 1; i >= 0; --i)//TODO check size chages;
+    {
+        if(res->elementGF[i] == 0)
+            --res->size;
+        else
+            break;
+    }
     res->modGenerator();
     return *res;
 }
 
-ull GF2::Trace()
+ull GF2::TraceMUL()
 {
     *this = *this * *this;
 
@@ -325,6 +330,22 @@ ull GF2::Trace()
     for(int i = 1; i < 179; ++i)
     {
         *this = *this * *this;
+       // std::cout<< this->
+        res += *this;
+       // std::cout<<res.elementGF[0]<<'\n';
+    }
+
+    return (ull)res.elementGF[0];
+}
+ ull GF2::Trace()
+{
+    *this = this->power2();
+
+    GF2 res(1) ;
+    res.copy(*this);
+    for(int i = 1; i < 179; ++i)
+    {
+        *this = this->power2();
        // std::cout<< this->
         res += *this;
         std::cout<<res.elementGF[0]<<'\n';

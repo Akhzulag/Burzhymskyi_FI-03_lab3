@@ -42,7 +42,7 @@ public:
     int bitSize() const;
 
     ull Trace();
-
+    ull TraceMUL();
     friend GF2& operator * (const GF2 &, const GF2 &);
     friend GF2& operator << (const GF2 &, int);
     //friend GF2& operator ^ (const GF2 &, int);
