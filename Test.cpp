@@ -106,3 +106,53 @@ TEST(sromTest512,tesPow2)
 
     EXPECT_EQ(actual,expected);
 }
+
+TEST(sromTest512,TEST1)
+{
+    GF2 A("274f3834cd8a7bdc21b8d8748756f2b05d786631b1f2");
+    GF2 B("11f5d00d9a1eba3c3d26b75166cf6e4face044da57eb");
+    GF2 C("e22db14f661a52f154086f0dfe3594ff29420ca9542b");
+    GF2 res1(1);
+    res1+=A;
+    res1+=B;
+    res1 = res1 * C;
+
+    GF2 res2 = A*C;
+    res2+=(B*C);
+    string a =res1.convert64bitToHex();
+    string e =res2.convert64bitToHex();
+    GF2 pow("7ffffffffffffffffffffffffffffffffffffffffffff");
+    A.convert64bitToHex();
+    GF2 powA = A^pow;
+    GF2 powB = B^pow;
+    GF2 powC = C^pow;
+    EXPECT_EQ("1",powA.convert64bitToHex());
+    EXPECT_EQ("1",powB.convert64bitToHex());
+    EXPECT_EQ("1",powC.convert64bitToHex());
+    EXPECT_EQ(a,e);
+}
+
+TEST(sromTest512,TEST2)
+{
+    GF2 A("cc17a88e68dc679274cb8891ba862");
+    GF2 B("acd5912bd9d706f4010f43b94c1a4");
+    GF2 C("a2e309c620d9ad66bd392554e7b25");
+    GF2 res1(1);
+    res1+=A;
+    res1+=B;
+    res1 = res1 * C;
+
+    GF2 res2 = A*C;
+    res2+=(B*C);
+    string a =res1.convert64bitToHex();
+    string e =res2.convert64bitToHex();
+    GF2 pow("7ffffffffffffffffffffffffffffffffffffffffffff");
+    A.convert64bitToHex();
+    GF2 powA = A^pow;
+    GF2 powB = B^pow;
+    GF2 powC = C^pow;
+    EXPECT_EQ("1",powA.convert64bitToHex());
+    EXPECT_EQ("1",powB.convert64bitToHex());
+    EXPECT_EQ("1",powC.convert64bitToHex());
+    EXPECT_EQ(a,e);
+}

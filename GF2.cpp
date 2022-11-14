@@ -1,7 +1,3 @@
-//
-// Created by Ростислав Буржимський on 9/11/2022.
-//
-
 #include "GF2.h"
 
 GF2::~GF2()
@@ -25,7 +21,7 @@ GF2::GF2(std::string hex)
 
     this->allocGF2();
 
-    for(int i = hex.size() - 1; i < size*16 - 1; ++i)//was size*16
+    for(int i = hex.size() - 1; i < size*16 - 1; ++i)
     {
         hex = '0' + hex;
     }
@@ -113,7 +109,7 @@ GF2& GF2::operator += (const GF2 &right)
         this->elementGF[i] = this->elementGF[i] ^ right.elementGF[i];
     }
 
-    for(int i = this->size - 1; i >= 0; --i)//TODO check size chages;
+    for(int i = this->size - 1; i >= 0; --i)
     {
         if(this->elementGF[i] == 0)
             --this->size;
@@ -186,7 +182,7 @@ int GF2::compare(const GF2 &left,const GF2 &right)
         --i;
 
     if(i == -1)
-        return 1; // left = right or left >= right
+        return 1;
     if(left.elementGF[i] > right.elementGF[i])
         return 1;
     return 0;
@@ -267,7 +263,7 @@ GF2& operator * (const GF2 &left, const GF2 &right)
     int bitSize = right.bitSize();
     int j = -1;
     ull mask;
-    //GF2 *tmp = result;
+
     for(int i = 0; i < bitSize; ++i)
     {
         if(i % 64 == 0)
@@ -279,7 +275,7 @@ GF2& operator * (const GF2 &left, const GF2 &right)
         if((right.elementGF[j] & mask) != 0)
         {
             GF2 shifted = (left << i);
-            *result += shifted;//TODO check that left<<i will be deleted
+            *result += shifted;
             result->modGenerator();
         }
 
@@ -290,7 +286,7 @@ GF2& operator * (const GF2 &left, const GF2 &right)
     return *result;
 }
 
-GF2& GF2::power2()//b5f64c07f0a40b755eb52b45c0418e61 problem
+GF2& GF2::power2()
 {
     int bitSize = this->bitSize()*2+1;
     int size64 = 0;
@@ -309,7 +305,7 @@ GF2& GF2::power2()//b5f64c07f0a40b755eb52b45c0418e61 problem
                 ++k;
         }
     }
-    for(int i = res->size - 1; i >= 0; --i)//TODO check size chages;
+    for(int i = res->size - 1; i >= 0; --i)
     {
         if(res->elementGF[i] == 0)
             --res->size;
@@ -343,7 +339,7 @@ GF2& operator ^ (const GF2& left, const GF2& right)
     int bitSizeRight = right.bitSize();
     int k = 0;
     uint64_t mask = 0x8000000000000000;
-    for(int i = right.size - 1; i >=0; --i)
+    for(int i = right.size - 1; i >= 0; --i)
     {
         while (mask!=0)
         {
@@ -362,6 +358,7 @@ GF2& operator ^ (const GF2& left, const GF2& right)
         }
         mask = 0x8000000000000000;
     }
+
     return *C;
 }
 
