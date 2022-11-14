@@ -320,36 +320,48 @@ GF2& GF2::power2()//b5f64c07f0a40b755eb52b45c0418e61 problem
     return *res;
 }
 
-ull GF2::TraceMUL()
+ull GF2::Trace()
 {
-    *this = *this * *this;
 
-    //this->power2();
-    GF2 res(1) ;
-    res.copy(*this);
-    for(int i = 1; i < 179; ++i)
-    {
-        *this = *this * *this;
-       // std::cout<< this->
-        res += *this;
-       // std::cout<<res.elementGF[0]<<'\n';
-    }
-
-    return (ull)res.elementGF[0];
-}
- ull GF2::Trace()
-{
     *this = this->power2();
 
     GF2 res(1) ;
     res.copy(*this);
     for(int i = 1; i < 179; ++i)
     {
+        GF2 tmp = *this;
         *this = this->power2();
-       // std::cout<< this->
         res += *this;
-        std::cout<<res.elementGF[0]<<'\n';
     }
 
     return (ull)res.elementGF[0];
 }
+
+GF2& operator ^ (const GF2& left, const GF2& right)
+{
+    GF2 *C = new GF2("1");
+    int bitSizeRight = right.bitSize();
+    int k = 0;
+    uint64_t mask = 0x8000000000000000;
+    for(int i = right.size - 1; i >=0; --i)
+    {
+        while (mask!=0)
+        {
+            if((right.elementGF[i] & mask) >> ((int)log2(mask)) == 1)
+            {
+                GF2 tmp = *C;
+                *C = *C * left;
+            }
+
+            if(i == 0 && mask == 1)
+                break;
+
+            GF2 tmp = *C;
+            *C = C->power2();
+            mask >>= 1;
+        }
+        mask = 0x8000000000000000;
+    }
+    return *C;
+}
+

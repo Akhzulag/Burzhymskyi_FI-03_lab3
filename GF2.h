@@ -17,6 +17,8 @@ class GF2
 private:
     std::string hex;
     ull elementGF[8];
+    ull numberHex[8];
+
     int size = 0;
     ull generator[3] {23,0,2251799813685248};//needed check
     int bitSizeGen = 178;
@@ -42,10 +44,10 @@ public:
     int bitSize() const;
 
     ull Trace();
-    ull TraceMUL();
+
     friend GF2& operator * (const GF2 &, const GF2 &);
     friend GF2& operator << (const GF2 &, int);
-    //friend GF2& operator ^ (const GF2 &, int);
+    friend GF2& operator ^ (const GF2 &, const GF2 &);
     GF2& operator += (const GF2 &);
 
 };
