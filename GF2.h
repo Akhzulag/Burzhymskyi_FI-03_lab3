@@ -38,7 +38,7 @@ public:
     void allocGF2();
     GF2& shiftBitToHigh(int);
     GF2& power2();
-    GF2& inversGF();
+    GF2& inverseGF();
     int compare(const GF2 &,const GF2 &);
     GF2& modGenerator ();
     int bitSize() const;
@@ -48,6 +48,7 @@ public:
     friend GF2& operator * (const GF2 &, const GF2 &);
     friend GF2& operator << (const GF2 &, int);
     friend GF2& operator ^ (const GF2 &, const GF2 &);
+
     GF2& operator += (const GF2 &);
 
 };

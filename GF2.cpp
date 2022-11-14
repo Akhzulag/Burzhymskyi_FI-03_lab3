@@ -365,3 +365,8 @@ GF2& operator ^ (const GF2& left, const GF2& right)
     return *C;
 }
 
+GF2& GF2::inverseGF()
+{
+    GF2 power("7fffffffffffffffffffffffffffffffffffffffffffe");
+    return *this^power;
+}
